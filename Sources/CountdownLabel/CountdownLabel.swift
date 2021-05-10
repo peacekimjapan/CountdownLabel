@@ -197,7 +197,7 @@ extension CountdownLabel {
         timer.fire()
         
         // set completion if needed
-        self.completion = completion
+        completion?()
         
         // set delegate
         countdownDelegate?.countdownStarted?()
