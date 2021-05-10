@@ -72,7 +72,7 @@ public class CountdownLabel: LTMorphingLabel {
         }
     }
     
-    internal var completion: CountdownCompletion?
+    public var completion: CountdownCompletion?
     internal var fromDate: NSDate = NSDate()
     internal var currentDate: NSDate = NSDate()
     internal var currentTime: TimeInterval = 0
