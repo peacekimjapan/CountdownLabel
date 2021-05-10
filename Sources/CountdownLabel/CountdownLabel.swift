@@ -14,12 +14,10 @@ import UIKit
     @objc optional func countdownFinished()
     @objc optional func countdownCancelled()
     @objc optional func countingAt(timeCounted: TimeInterval, timeRemaining: TimeInterval)
-
+    
 }
 extension TimeInterval {
-    var int: Int {
-        return Int(self)
-    }
+    var int: Int { Int(self) }
 }
 
 public class CountdownLabel: LTMorphingLabel {
@@ -44,20 +42,14 @@ public class CountdownLabel: LTMorphingLabel {
     }
     
     public var timeRemaining: TimeInterval {
-        return round(currentTime) - timeCounted
+        round(currentTime) - timeCounted
     }
     
-    public var isPaused: Bool {
-        return paused
-    }
+    public var isPaused: Bool { paused }
     
-    public var isCounting: Bool {
-        return counting
-    }
+    public var isCounting: Bool { counting }
     
-    public var isFinished: Bool {
-        return finished
-    }
+    public var isFinished: Bool { finished }
     
     public weak var countdownDelegate: CountdownLabelDelegate?
     
@@ -91,15 +83,12 @@ public class CountdownLabel: LTMorphingLabel {
     internal var timer: Timer!
     
     internal var counting: Bool = false
-    internal var endOfTimer: Bool {
-        return timeCounted >= currentTime
-    }
+    internal var endOfTimer: Bool {  timeCounted >= currentTime }
     internal var finished: Bool = false {
         didSet {
-            if finished {
-                paused = false
-                counting = false
-            }
+            guard finished else { return }
+            paused = false
+            counting = false
         }
     }
     internal var paused: Bool = false
@@ -193,7 +182,8 @@ public class CountdownLabel: LTMorphingLabel {
 extension CountdownLabel {
     public func start(completion: ( () -> () )? = nil) {
         if !isPaused {
-            // current date should be setted at the time of the counter's starting, or the time will be wrong (just a few seconds) after the first time of pausing.
+            // current date should be setted at the time of the counter's starting,
+            // or the time will be wrong (just a few seconds) after the first time of pausing.
             currentDate = NSDate()
         }
         
@@ -214,9 +204,7 @@ extension CountdownLabel {
     }
     
     public func pause(completion: (() -> ())? = nil) {
-        if paused {
-            return
-        }
+        if paused { return }
         
         // invalidate timer
         disposeTimer()
@@ -256,9 +244,7 @@ extension CountdownLabel {
     @discardableResult
     public func then(targetTime: TimeInterval, completion: @escaping () -> ()) -> Self {
         let t = targetTime - (targetTime - targetTime)
-        guard t > 0 else {
-            return self
-        }
+        guard t > 0 else { return self }
         
         thens[t] = completion
         return self
@@ -295,32 +281,33 @@ extension CountdownLabel {
     
     //fix one day bug
     func surplusTime(_ to1970Date: Date) -> String {
-        let calendar = Calendar.init(identifier: .gregorian);
-        var labelText = timeFormat;
+        let calendar = Calendar(identifier: .gregorian)
+        var labelText = timeFormat
         let comp = calendar.dateComponents([.day, .hour, .minute, .second], from: date1970 as Date, to: to1970Date)
         
         if let day = comp.day ,let _ = timeFormat.range(of: "dd"){
-            labelText = labelText.replacingOccurrences(of: "dd", with: String.init(format: "%02ld", day))
+            labelText = labelText.replacingOccurrences(of: "dd", with: String(format: "%02ld", day))
         }
         if let hour = comp.hour ,let _ = timeFormat.range(of: "hh"){
-            labelText = labelText.replacingOccurrences(of: "hh", with: String.init(format: "%02ld", hour))
+            labelText = labelText.replacingOccurrences(of: "hh", with: String(format: "%02ld", hour))
         }
         if let hour = comp.hour ,let _ = timeFormat.range(of: "HH"){
-            labelText = labelText.replacingOccurrences(of: "HH", with: String.init(format: "%02ld", hour))
+            labelText = labelText.replacingOccurrences(of: "HH", with: String(format: "%02ld", hour))
         }
         if let minute = comp.minute ,let _ = timeFormat.range(of: "mm"){
-            labelText = labelText.replacingOccurrences(of: "mm", with: String.init(format: "%02ld", minute))
+            labelText = labelText.replacingOccurrences(of: "mm", with: String(format: "%02ld", minute))
         }
         if let second = comp.second ,let _ = timeFormat.range(of: "ss"){
-            labelText = labelText.replacingOccurrences(of: "ss", with: String.init(format: "%02ld", second))
+            labelText = labelText.replacingOccurrences(of: "ss", with: String(format: "%02ld", second))
+        }
+        if let second = comp.second ,let _ = timeFormat.range(of: "s"){
+            labelText = labelText.replacingOccurrences(of: "s", with: String(format: "%ld", second))
         }
         return labelText
     }
     
     func updatePauseStatusIfNeeded() {
-        guard paused else {
-            return
-        }
+        guard paused else { return }
         // change date
         let pastedTime = pausedDate.timeIntervalSince(currentDate as Date)
         currentDate = NSDate().addingTimeInterval(-pastedTime)
@@ -335,11 +322,12 @@ extension CountdownLabel {
         disposeTimer()
         
         // create
-        timer = Timer.scheduledTimer(timeInterval: defaultFireInterval,
-                                                       target: self,
-                                                       selector: #selector(updateLabel),
-                                                       userInfo: nil,
-                                                       repeats: true)
+        timer = Timer.scheduledTimer(
+            timeInterval: defaultFireInterval,
+            target: self,
+            selector: #selector(updateLabel),
+            userInfo: nil,
+            repeats: true)
         
         // register to NSrunloop
         RunLoop.current.add(timer, forMode: RunLoop.Mode.common)
@@ -347,10 +335,9 @@ extension CountdownLabel {
     }
     
     func disposeTimer() {
-        if timer != nil {
-            timer.invalidate()
-            timer = nil
-        }
+        guard timer != nil else { return }
+        timer.invalidate()
+        timer = nil
     }
     
     func dispose() {
@@ -393,7 +380,7 @@ public class CountdownAttributedText: NSObject {
     internal let text: String
     internal let replacement: String
     internal let attributes: [NSAttributedString.Key: Any]?
-   
+    
     public init(text: String, replacement: String, attributes: [NSAttributedString.Key: Any]? = nil) {
         self.text = text
         self.replacement = replacement
